@@ -3,6 +3,7 @@ import Footer from "./components/Footer.jsx";
 import ApiTest from "./components/ApiTest.jsx";
 import CardImage from "./components/CardImage.jsx";
 import SetImage from "./components/SetImage.jsx";
+import SearchBar from "./components/SearchBar.jsx";
 
 export default function App() {
   return (
