@@ -5,6 +5,7 @@ import SetsList from "./pages/SetsList.jsx";
 import Landing from "./pages/Landing.jsx";
 import SetCards from "./pages/SetCards.jsx";
 import { useEffect, useState } from 'react';
+import AdminModif from "./pages/AdminModif.jsx";
 
 export default function App() {
   const [path, setPath] = useState(window.location.pathname || '/');
@@ -35,6 +36,9 @@ export default function App() {
   } else {
     // fallback to sets list
     content = <SetsList navigateTo={navigateTo} />;
+  }
+  if (path === '/admin') {
+    content = <AdminModif/>;
   }
 
   return (
