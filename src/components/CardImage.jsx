@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import CardModal from './CardDetails';
 import ImageModal from './ImageModal';
 
 /**
@@ -10,6 +11,7 @@ function CardImage({ cardId }) {
   const [card, setCard] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [showModal, setShowModal] = useState(false);
   const [open, setOpen] = useState(false);
 
   useEffect(() => {
@@ -85,6 +87,23 @@ function CardImage({ cardId }) {
 
   return (
     <div className="flex justify-center">
+      <button
+        type="button"
+        onClick={() => setShowModal(true)}
+        className="p-0 bg-transparent border-0 focus:outline-none"
+        aria-label={`Ouvrir détails de ${card.name}`}
+      >
+        <img
+          src={card.large}
+          alt={`Carte Pokémon: ${card.name}`}
+          className="w-full h-auto bg-transparent hover:scale-105 transition-transform cursor-pointer"
+          onError={(e) => {
+            e.target.src = 'https://via.placeholder.com/300x400?text=Image+indisponible';
+          }}
+        />
+      </button>
+
+      {showModal && <CardModal card={card} onClose={() => setShowModal(false)} />}
       <img
         src={thumb}
         alt={`Carte Pokémon: ${card.name}`}
