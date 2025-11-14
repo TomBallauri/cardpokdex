@@ -1,14 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import ImageModal from '../components/ImageModal';
+import CardDetails from '../components/CardDetails.jsx';
 
 export default function SearchResults({ navigateTo }) {
   const [query, setQuery] = useState('');
   const [cards, setCards] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [modalOpen, setModalOpen] = useState(false);
-  const [selectedImage, setSelectedImage] = useState(null);
-  const [selectedAlt, setSelectedAlt] = useState('');
+  const [selectedCard, setSelectedCard] = useState(null);
 
   useEffect(() => {
     const readAndFetch = () => {
@@ -68,23 +66,25 @@ export default function SearchResults({ navigateTo }) {
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
         {cards.map((c) => (
           <div key={c.id} className="flex justify-center">
-            <img
-              src={c.small || c.large}
-              alt={c.name}
-              className="w-full h-auto rounded-lg shadow-sm hover:shadow-md transition-transform hover:scale-105 cursor-pointer"
-              onError={(e) => { e.target.src = 'https://via.placeholder.com/240x320?text=Image+indisponible'; }}
-              onClick={() => {
-                const large = c.large || c.small;
-                setSelectedImage(large);
-                setSelectedAlt(c.name || c.id);
-                setModalOpen(true);
-              }}
-            />
+            <button
+              type="button"
+              onClick={() => setSelectedCard(c)}
+              style={{ border: 'none', background: 'transparent', padding: 0, cursor: 'pointer', width: '100%' }}
+            >
+              <img
+                src={c.small || c.large}
+                alt={c.name}
+                className="w-full h-auto rounded-lg shadow-sm hover:shadow-md transition-transform hover:scale-105"
+                onError={(e) => { e.target.src = 'https://via.placeholder.com/240x320?text=Image+indisponible'; }}
+              />
+            </button>
           </div>
         ))}
       </div>
 
-      <ImageModal open={modalOpen} src={selectedImage} alt={selectedAlt} onClose={() => setModalOpen(false)} />
+      {selectedCard && (
+        <CardDetails card={selectedCard} onClose={() => setSelectedCard(null)} />
+      )}
     </div>
   );
 }

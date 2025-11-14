@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import CardImage from "./CardImage.jsx";
+import CardDetails from "./CardDetails.jsx";
 
 function SearchBar({
 	endpoint = "/api/search",
@@ -11,7 +11,7 @@ function SearchBar({
 }) {
 	const [query, setQuery] = useState("");
 	const [results, setResults] = useState([]);
-	const [selectedCardId, setSelectedCardId] = useState(null);
+	const [selectedCard, setSelectedCard] = useState(null);
 
 	const [error, setError] = useState(null);
 	const [isOpen, setIsOpen] = useState(false);
@@ -81,23 +81,26 @@ function SearchBar({
 		};
 	}, [query, endpoint, paramName, minChars, debounceMs, onResults]);
 
-	// Hash routing: open card detail when hash is #/card/<id>
-	useEffect(() => {
-		const hash = globalThis.location.hash || "";
-		if (hash.startsWith("#/card/")) {
-			setSelectedCardId(decodeURIComponent(hash.replace("#/card/", "")));
-		}
-		const onHashChange = () => {
+	// Hash routing: when the hash references a card id, try to find it in current results and open details
+useEffect(() => {
+		const checkHash = () => {
 			const h = globalThis.location.hash || "";
 			if (h.startsWith("#/card/")) {
-				setSelectedCardId(decodeURIComponent(h.replace("#/card/", "")));
+				const id = decodeURIComponent(h.replace("#/card/", ""));
+				const found = results.find((c) => c.id === id);
+				if (found) setSelectedCard(found);
+				else setSelectedCard(null);
 			} else {
-				setSelectedCardId(null);
+				setSelectedCard(null);
 			}
 		};
-		globalThis.addEventListener("hashchange", onHashChange);
-		return () => globalThis.removeEventListener("hashchange", onHashChange);
-	}, []);
+
+		// initial check and listener
+		checkHash();
+		globalThis.addEventListener("hashchange", checkHash);
+
+		return () => globalThis.removeEventListener("hashchange", checkHash);
+	}, [results]);
 
 	// Close popup on outside click or Escape
 	useEffect(() => {
@@ -191,11 +194,34 @@ function SearchBar({
 					{results && results.length > 0 ? (
 						<ul style={{ listStyle: "none", padding: 0, margin: 0 }}>
 							{results.slice(0, 50).map((r) => (
-								<li key={r.id} style={{ margin: "6px 0", padding: 6, borderRadius: 6 }}>
-									<div style={{ color: "#222" }}>
-										<strong>{r.name}</strong>
-									</div>
-									<div style={{ fontSize: 12, color: "#444" }}>{r.id}</div>
+								<li key={r.id} style={{ margin: "6px 0", padding: 0, borderRadius: 6 }}>
+									<button
+										type="button"
+										onClick={() => {
+											setSelectedCard(r);
+											setSelectedCardId(r.id);
+											try {
+												globalThis.location.hash = `#/card/${encodeURIComponent(r.id)}`;
+											} catch (e) {
+												// ignore
+											}
+											setIsOpen(false);
+										}}
+										style={{
+											width: '100%',
+											textAlign: 'left',
+											padding: 6,
+											borderRadius: 6,
+											border: 'none',
+											background: 'transparent',
+											cursor: 'pointer',
+										}}
+									>
+										<div style={{ color: "#222" }}>
+											<strong>{r.name}</strong>
+										</div>
+										<div style={{ fontSize: 12, color: "#444" }}>{r.id}</div>
+									</button>
 								</li>
 							))}
 						</ul>
@@ -205,21 +231,20 @@ function SearchBar({
 				</div>
 			)}
 
-			{/* Détail de la carte sélectionnée */}
-			{selectedCardId && (
-				<section style={{ padding: 12, borderTop: "1px solid #eee" }}>
-					<h3>Détail de la carte</h3>
-					<button
-						onClick={() => {
+			{/* Détail de la carte sélectionnée (modal) */}
+			{selectedCard && (
+				<CardDetails
+					card={selectedCard}
+					onClose={() => {
+						setSelectedCard(null);
+						setSelectedCardId(null);
+						try {
 							globalThis.location.hash = "";
-							setSelectedCardId(null);
-						}}
-						style={{ marginBottom: 8 }}
-					>
-						← Retour
-					</button>
-					<CardImage cardId={selectedCardId} />
-				</section>
+						} catch (e) {
+							// ignore
+						}
+					}}
+				/>
 			)}
 			</div>
 		);
