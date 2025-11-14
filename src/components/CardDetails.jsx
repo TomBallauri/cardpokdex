@@ -97,13 +97,6 @@ function CardModal({ card, onClose }) {
                 <div style={{ color: '#333', fontStyle: 'italic' }}>{card.flavorText || '—'}</div>
               </div>
             </div>
-
-            <div style={{ marginTop: 8 }}>
-              <strong style={{ display: 'block', marginBottom: 8 }}>Full data</strong>
-              <pre style={{ whiteSpace: 'pre-wrap', fontSize: 12, background: '#f7f7f7', padding: 10, borderRadius: 6, maxHeight: 260, overflow: 'auto' }}>
-                {JSON.stringify(card, null, 2)}
-              </pre>
-            </div>
           </div>
         </div>
       </div>
